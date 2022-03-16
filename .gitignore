@@ -1,0 +1,88 @@
+/*
+ Example sketch for the PS4 USB library - developed by Kristian Lauszus
+ For more information visit my blog: http://blog.tkjelectronics.dk/ or
+ send me an e-mail:  kristianl@tkjelectronics.com
+ */
+
+#include <PS4USB.h>
+
+// Satisfy the IDE, which needs to see the include statment in the ino too.
+#ifdef dobogusinclude
+#include <spi4teensy3.h>
+#endif
+#include <SPI.h>
+
+USB Usb;
+PS4USB PS4(&Usb);
+
+bool printAngle, printTouch;
+uint8_t oldL2Value, oldR2Value;
+int IN1 = 3;       //control pin for first motor
+int IN2 = 4;       //control pin for first motor
+int IN3 = 5;        //control pin for second motor
+int IN4 = 6;        //control pin for second motor
+
+void setup() {
+  Serial.begin(115200);
+#if !defined(__MIPSEL__)
+  while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
+#endif
+  if (Usb.Init() == -1) {
+    Serial.print(F("\r\nOSC did not start"));
+    while (1); // Halt
+  }
+  Serial.print(F("\r\nPS4 USB Library Started"));
+}
+
+void loop() {
+  Usb.Task();
+if (PS4.connected()) {
+  //  if (PS4.getAnalogHat(LeftHatX) > 137 || PS4.getAnalogHat(LeftHatX) < 117 || PS4.getAnalogHat(LeftHatY) > 137 || PS4.getAnalogHat(LeftHatY) < 117 || PS4.getAnalogHat(RightHatX) > 137 || PS4.getAnalogHat(RightHatX) < 117 || PS4.getAnalogHat(RightHatY) > 137 || PS4.getAnalogHat(RightHatY) < 117) {
+      if(PS4.getAnalogHat(LeftHatX)<10)
+      {
+          digitalWrite(IN1, LOW);
+          digitalWrite(IN2, HIGH);
+          digitalWrite(IN3, HIGH);
+          digitalWrite(IN4, LOW);
+    
+          Serial.print("\nHatX: 50 ");
+      }
+      else if(PS4.getAnalogHat(LeftHatX)>240)
+      {
+          digitalWrite(IN1, HIGH);
+          digitalWrite(IN2, LOW);
+          digitalWrite(IN3, LOW);
+          digitalWrite(IN4, HIGH);
+          Serial.print("\nHatX: 200 ");
+          
+      }
+      else if(PS4.getAnalogHat(LeftHatY) < 20)
+      {
+          digitalWrite(IN1, LOW);
+          digitalWrite(IN2, HIGH);
+          digitalWrite(IN3, LOW);
+          digitalWrite(IN4, HIGH);
+        
+          Serial.print("\nHatY: 50 ");
+          
+       }
+       else if(PS4.getAnalogHat(LeftHatY) > 200)
+       {
+          digitalWrite(IN1, HIGH);
+          digitalWrite(IN2, LOW);
+          digitalWrite(IN3, HIGH);
+          digitalWrite(IN4, LOW);
+    
+          Serial.print("\nHatY: 200 ");
+       }
+       else 
+       {
+          digitalWrite(IN1, LOW);
+          digitalWrite(IN2, LOW);
+          digitalWrite(IN3, LOW);
+          digitalWrite(IN4, LOW);
+        
+          Serial.print("\nrotate the joystick ");
+          }
+}
+}
